@@ -7,6 +7,8 @@ yarn-error.log*
 pnpm-debug.log*
 lerna-debug.log*
 
+pi-2-clave.json
+
 node_modules
 dist
 dist-ssr
