@@ -1,7 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import startStreaming from './streaming';
 
-
 const Camera = () => {
   const [hasPermission, setHasPermission] = useState(false);
   const [videoStream, setVideoStream] = useState(null);
@@ -13,7 +12,7 @@ const Camera = () => {
         const stream = await navigator.mediaDevices.getUserMedia({ video: true });
         setVideoStream(stream);
         setHasPermission(true);
-        startStreaming(stream);
+        startStreaming(stream); 
       } catch (err) {
         console.error("Error accessing camera: ", err);
         setHasPermission(false);
@@ -22,7 +21,6 @@ const Camera = () => {
 
     requestCameraPermission();
   }, []);
-
 
   useEffect(() => {
     return () => {
@@ -51,3 +49,4 @@ const Camera = () => {
 };
 
 export default Camera;
+

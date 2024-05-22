@@ -1,54 +1,29 @@
-
-import { RekognitionClient, StartStreamProcessorCommand, StopStreamProcessorCommand } from '@aws-sdk/client-rekognition';
-import { S3Client, PutObjectCommand as S3PutObjectCommand } from '@aws-sdk/client-s3';
-const rekognitionClient = new RekognitionClient({
-    region: 'us-west-1',
-    credentials: {
-        accessKeyId: '',
-        secretAccessKey: '/'
-    }
-});
-
-const s3Client = new S3Client({
-    region: 'us-west-1',
-    credentials: {
-        accessKeyId: '',
-        secretAccessKey: '/'
-    }
-    
-});
-
-let cont = 0;
-
 const startStreaming = (stream) => {
-    if (cont > 5){
-        return null;
-    }
-    else {
-        cont++;
-    }
     const mediaRecorder = new MediaRecorder(stream, {
-        mimeType: 'video/webm;codecs=vp8'
+      mimeType: 'video/webm;codecs=vp8'
     });
-
+  
     mediaRecorder.ondataavailable = async (event) => {
-        if (event.data.size > 0) {
-            const videoBlob = new Blob([event.data], { type: 'video/webm' });
-            const params = {
-                Bucket: 'my-audios-call-mp4',
-                Key: `video-${Date.now()}.webm`,
-                Body: videoBlob,
-                ContentType: 'video/webm',
-            };
-            try {
-                await s3Client.send(new S3PutObjectCommand(params));
-                console.log('Video chunk uploaded to S3');
-            } catch (error) {
-                console.error('Error uploading video chunk to S3:', error);
-            }
+      if (event.data.size > 0) {
+        const videoBlob = new Blob([event.data], { type: 'video/webm' });
+        const formData = new FormData();
+        formData.append('video', videoBlob, `video-${Date.now()}.webm`);
+  
+        try {
+          const response = await fetch('http://localhost:5000/upload', { 
+            method: 'POST',
+            body: formData
+          });
+          const result = await response.json();
+          console.log('Video uploaded and analyzed:', result);
+        } catch (error) {
+          console.error('Error uploading video:', error);
         }
+      }
     };
-
-    mediaRecorder.start(3000);
-};
-export default startStreaming;
+  
+    mediaRecorder.start(3000); 
+  };
+  
+  export default startStreaming;
+  
