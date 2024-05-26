@@ -22,7 +22,7 @@ const startStreaming = (stream) => {
       }
     };
   
-    mediaRecorder.start(3000); 
+    mediaRecorder.start(1000); 
   };
   
   export default startStreaming;
