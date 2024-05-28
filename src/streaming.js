@@ -1,5 +1,4 @@
-// streaming.js
-const startStreaming = (stream) => {
+const startStreaming = (stream, setAudioSrc) => {
   const video = document.createElement('video');
   video.srcObject = stream;
   video.play();
@@ -9,7 +8,7 @@ const startStreaming = (stream) => {
 
   const sendFrame = async () => {
     context.drawImage(video, 0, 0, canvas.width, canvas.height);
-    const imageData = canvas.toDataURL('image/jpeg'); // Puedes cambiar el formato y calidad según sea necesario
+    const imageData = canvas.toDataURL('image/jpeg');
 
     try {
       const response = await fetch('http://127.0.0.1:5000/upload-image', { // Cambia esto a la URL de tu backend
@@ -23,13 +22,17 @@ const startStreaming = (stream) => {
       if (!response.ok) {
         throw new Error('Network response was not ok');
       }
+
+      const audioBlob = await response.blob();
+      const audioUrl = URL.createObjectURL(audioBlob);
+      setAudioSrc(audioUrl);
     } catch (error) {
       console.error('Error sending frame: ', error);
     }
   };
 
   const startSendingFrames = () => {
-    setInterval(sendFrame, 3000); // Envía una imagen cada segundo
+    setInterval(sendFrame, 6000); // Envía una imagen cada segundo
   };
 
   video.addEventListener('canplay', () => {

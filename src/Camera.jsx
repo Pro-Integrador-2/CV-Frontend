@@ -4,6 +4,7 @@ import startStreaming from './streaming';
 const Camera = () => {
   const [hasPermission, setHasPermission] = useState(false);
   const [videoStream, setVideoStream] = useState(null);
+  const [audioSrc, setAudioSrc] = useState(null);
   const videoRef = useRef(null);
 
   useEffect(() => {
@@ -12,7 +13,7 @@ const Camera = () => {
         const stream = await navigator.mediaDevices.getUserMedia({ video: true });
         setVideoStream(stream);
         setHasPermission(true);
-        startStreaming(stream); 
+        startStreaming(stream, setAudioSrc);
       } catch (err) {
         console.error("Error accessing camera: ", err);
         setHasPermission(false);
@@ -44,9 +45,9 @@ const Camera = () => {
       ) : (
         <p>No permission to access the camera.</p>
       )}
+      {audioSrc && <audio src={audioSrc} autoPlay />}
     </div>
   );
 };
 
 export default Camera;
-
