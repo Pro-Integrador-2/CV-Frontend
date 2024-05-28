@@ -12,6 +12,7 @@ pi-2-clave.json
 node_modules
 dist
 dist-ssr
+dev-dist
 *.local
 
 # Editor directories and files
