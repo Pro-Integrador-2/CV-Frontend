@@ -1,29 +1,42 @@
+// streaming.js
 const startStreaming = (stream) => {
-    const mediaRecorder = new MediaRecorder(stream, {
-      mimeType: 'video/webm;codecs=vp8'
-    });
-  
-    mediaRecorder.ondataavailable = async (event) => {
-      if (event.data.size > 0) {
-        const videoBlob = new Blob([event.data], { type: 'video/webm' });
-        const formData = new FormData();
-        formData.append('video', videoBlob, `video-${Date.now()}.webm`);
-  
-        try {
-          const response = await fetch('http://localhost:5000/upload', { 
-            method: 'POST',
-            body: formData
-          });
-          const result = await response.json();
-          console.log('Video uploaded and analyzed:', result);
-        } catch (error) {
-          console.error('Error uploading video:', error);
-        }
+  const video = document.createElement('video');
+  video.srcObject = stream;
+  video.play();
+
+  const canvas = document.createElement('canvas');
+  const context = canvas.getContext('2d');
+
+  const sendFrame = async () => {
+    context.drawImage(video, 0, 0, canvas.width, canvas.height);
+    const imageData = canvas.toDataURL('image/jpeg'); // Puedes cambiar el formato y calidad según sea necesario
+
+    try {
+      const response = await fetch('http://127.0.0.1:5000/upload-image', { // Cambia esto a la URL de tu backend
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ image: imageData }),
+      });
+
+      if (!response.ok) {
+        throw new Error('Network response was not ok');
       }
-    };
-  
-    mediaRecorder.start(1000); 
+    } catch (error) {
+      console.error('Error sending frame: ', error);
+    }
   };
-  
-  export default startStreaming;
-  
+
+  const startSendingFrames = () => {
+    setInterval(sendFrame, 3000); // Envía una imagen cada segundo
+  };
+
+  video.addEventListener('canplay', () => {
+    canvas.width = video.videoWidth;
+    canvas.height = video.videoHeight;
+    startSendingFrames();
+  });
+};
+
+export default startStreaming;
