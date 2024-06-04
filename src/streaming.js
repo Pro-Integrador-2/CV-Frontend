@@ -1,4 +1,4 @@
-const startStreaming = (stream, setAudioSrc) => {
+const startStreaming = (stream, updateNextAudioSrc) => {
   const video = document.createElement('video');
   video.srcObject = stream;
   video.play();
@@ -25,7 +25,7 @@ const startStreaming = (stream, setAudioSrc) => {
 
       const audioBlob = await response.blob();
       const audioUrl = URL.createObjectURL(audioBlob);
-      setAudioSrc(audioUrl);
+      updateNextAudioSrc(audioUrl);
     } catch (error) {
       console.error('Error sending frame: ', error);
     }
