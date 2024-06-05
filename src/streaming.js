@@ -1,4 +1,4 @@
-const startStreaming = (stream, updateNextAudioSrc, language) => {
+const startStreaming = (stream, updateNextAudioSrc) => {
   const video = document.createElement('video');
   video.srcObject = stream;
   video.play();
@@ -9,7 +9,7 @@ const startStreaming = (stream, updateNextAudioSrc, language) => {
   const sendFrame = async () => {
     context.drawImage(video, 0, 0, canvas.width, canvas.height);
     const imageData = canvas.toDataURL('image/jpeg');
-
+    const language = localStorage.getItem("language")
     try {
       const response = await fetch('http://127.0.0.1:5000/upload-image', {
         method: 'POST',
@@ -32,7 +32,7 @@ const startStreaming = (stream, updateNextAudioSrc, language) => {
   };
 
   const startSendingFrames = () => {
-    setInterval(sendFrame, 6000);
+    setInterval(sendFrame, 5000);
   };
 
   video.addEventListener('canplay', () => {

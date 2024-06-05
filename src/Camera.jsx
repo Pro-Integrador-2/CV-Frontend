@@ -9,11 +9,18 @@ const Camera = () => {
   const [audioSrc, setAudioSrc] = useState(null);
   const [nextAudioSrc, setNextAudioSrc] = useState(null);
   const [language, setLanguage] = useState('es');
-  const videoRef = useRef(null);
+  const [playNextAudio, setPlayNextAudio] = useState(false);
 
   const updateNextAudioSrc = (newUrl) => {
     if (newUrl) {
       setNextAudioSrc(newUrl);
+      if(playNextAudio){
+        setPlayNextAudio(false);
+        setAudioSrc(newUrl);
+      }
+    }
+    else{
+      console.error(newUrl)
     }
   };
 
@@ -23,7 +30,8 @@ const Camera = () => {
         const stream = await navigator.mediaDevices.getUserMedia({ video: true });
         setVideoStream(stream);
         setHasPermission(true);
-        startStreaming(stream, updateNextAudioSrc, language);
+        localStorage.setItem("language", language);
+        startStreaming(stream, updateNextAudioSrc);
         VoiceGuide(language, setAudioSrc);
       } catch (err) {
         console.error("Error accessing camera: ", err);
@@ -32,7 +40,7 @@ const Camera = () => {
     };
 
     requestCameraPermission();
-  }, [language]);
+  }, []);
 
   useEffect(() => {
     return () => {
@@ -43,11 +51,19 @@ const Camera = () => {
   }, [videoStream]);
 
   const handleAudioEnding = () => {
-    setAudioSrc(nextAudioSrc);
+    if (nextAudioSrc) {
+      setAudioSrc(nextAudioSrc);
+    } else {
+      setPlayNextAudio(true);
+    }
+
   };
+
 
   const handleLanguageChange = (event) => {
     setLanguage(event.target.value);
+    localStorage.setItem("language", event.target.value)
+    VoiceGuide(event.target.value, setAudioSrc);
   };
 
   return (
@@ -60,7 +76,7 @@ const Camera = () => {
               video.srcObject = videoStream;
             }
           }}
-       
+
         />
       ) : (
         <p>No permission to access the camera.</p>
@@ -91,4 +107,3 @@ const Camera = () => {
 };
 
 export default Camera;
-
