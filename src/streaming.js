@@ -9,14 +9,14 @@ const startStreaming = (stream, updateNextAudioSrc) => {
   const sendFrame = async () => {
     context.drawImage(video, 0, 0, canvas.width, canvas.height);
     const imageData = canvas.toDataURL('image/jpeg');
-
+    const language = localStorage.getItem("language")
     try {
-      const response = await fetch('http://127.0.0.1:5000/upload-image', { // Cambia esto a la URL de tu backend
+      const response = await fetch('http://127.0.0.1:5000/upload-image', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ image: imageData }),
+        body: JSON.stringify({ image: imageData, language_code: language}),
       });
 
       if (!response.ok) {
@@ -32,7 +32,7 @@ const startStreaming = (stream, updateNextAudioSrc) => {
   };
 
   const startSendingFrames = () => {
-    setInterval(sendFrame, 6000); // Envía una imagen cada segundo
+    setInterval(sendFrame, 5000);
   };
 
   video.addEventListener('canplay', () => {
