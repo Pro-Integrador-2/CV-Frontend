@@ -1,13 +1,12 @@
-const startStreaming = (stream, updateNextAudioSrc) => {
-  const video = document.createElement('video');
-  video.srcObject = stream;
-  video.play();
+const startStreaming = (updateNextAudioSrc, canvasRef, videoRef) => {
+  const video = videoRef.current;
 
-  const canvas = document.createElement('canvas');
+
+  const canvas = canvasRef.current;
   const context = canvas.getContext('2d');
 
   const sendFrame = async () => {
-    context.drawImage(video, 0, 0, canvas.width, canvas.height);
+    context.drawImage(video, 0, 0, 220, 140);
     const imageData = canvas.toDataURL('image/jpeg');
     const language = localStorage.getItem("language")
     try {
@@ -16,7 +15,7 @@ const startStreaming = (stream, updateNextAudioSrc) => {
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ image: imageData, language_code: language}),
+        body: JSON.stringify({ image: imageData, language_code: language }),
       });
 
       if (!response.ok) {

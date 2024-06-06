@@ -10,37 +10,44 @@ const Camera = () => {
   const [nextAudioSrc, setNextAudioSrc] = useState(null);
   const [language, setLanguage] = useState('es');
   const [playNextAudio, setPlayNextAudio] = useState(false);
+  const canvasRef = useRef(null);
+  const videoRef = useRef(null);
 
   const updateNextAudioSrc = (newUrl) => {
     if (newUrl) {
       setNextAudioSrc(newUrl);
-      if(playNextAudio){
+      if (playNextAudio) {
         setPlayNextAudio(false);
         setAudioSrc(newUrl);
       }
-    }
-    else{
-      console.error(newUrl)
+    } else {
+      console.error('Failed to update next audio source.');
     }
   };
 
   useEffect(() => {
     const requestCameraPermission = async () => {
       try {
-        const stream = await navigator.mediaDevices.getUserMedia({ video: true });
+        const stream = await navigator.mediaDevices.getUserMedia({ video: { width: 520, height: 340 } });
         setVideoStream(stream);
         setHasPermission(true);
-        localStorage.setItem("language", language);
-        startStreaming(stream, updateNextAudioSrc);
+        localStorage.setItem('language', language);
         VoiceGuide(language, setAudioSrc);
       } catch (err) {
-        console.error("Error accessing camera: ", err);
+        console.error('Error accessing camera: ', err);
         setHasPermission(false);
       }
     };
 
     requestCameraPermission();
-  }, []);
+  }, [language]);
+
+  useEffect(() => {
+    if (videoStream && videoRef.current && canvasRef.current) {
+      videoRef.current.srcObject = videoStream;
+      startStreaming(updateNextAudioSrc, canvasRef, videoRef);
+    }
+  }, [videoStream]);
 
   useEffect(() => {
     return () => {
@@ -56,28 +63,18 @@ const Camera = () => {
     } else {
       setPlayNextAudio(true);
     }
-
   };
-
 
   const handleLanguageChange = (event) => {
     setLanguage(event.target.value);
-    localStorage.setItem("language", event.target.value)
+    localStorage.setItem('language', event.target.value);
     VoiceGuide(event.target.value, setAudioSrc);
   };
 
   return (
     <div>
       {hasPermission ? (
-        <video
-          autoPlay
-          ref={video => {
-            if (video) {
-              video.srcObject = videoStream;
-            }
-          }}
-
-        />
+        <video className="video" ref={videoRef} autoPlay />
       ) : (
         <p>No permission to access the camera.</p>
       )}
@@ -99,8 +96,15 @@ const Camera = () => {
             <MenuItem value="en">Inglés</MenuItem>
             <MenuItem value="fr">Francés</MenuItem>
           </Select>
-
         </FormControl>
+        <div className="canvas-wrap" style={{ display: 'none' }}>
+          <canvas
+            className="canvas"
+            width="220"
+            height="140"
+            ref={canvasRef}
+          />
+        </div>
       </Box>
     </div>
   );
