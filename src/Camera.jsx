@@ -34,10 +34,13 @@ const Camera = () => {
         localStorage.setItem('language', language);
         VoiceGuide(language, setAudioSrc);
         socket.on('audio-detection', (data) => {
-          const audioUrl = `data:audio/mp3;base64,${data.audio}`;
-          updateNextAudioSrc(audioUrl)
+
+          console.info(socket.id, data.session_id, socket.id === data.session_id)
+          if (socket.id === data.session_id) {
+            const audioUrl = `data:audio/mp3;base64,${data.audio}`;
+            updateNextAudioSrc(audioUrl)
+          }
         });
-    
       } catch (err) {
         console.error('Error accessing camera: ', err);
         setHasPermission(false);
