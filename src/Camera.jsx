@@ -1,7 +1,8 @@
 import React, { useState, useEffect, useRef } from 'react';
 import startStreaming from './streaming';
-import { VoiceGuide } from './initGuide';
+import socket from './socket';
 import { FormControl, InputLabel, Select, MenuItem, Box } from '@mui/material';
+import { VoiceGuide } from './initGuide';
 
 const Camera = () => {
   const [hasPermission, setHasPermission] = useState(false);
@@ -12,7 +13,6 @@ const Camera = () => {
   const [playNextAudio, setPlayNextAudio] = useState(false);
   const canvasRef = useRef(null);
   const videoRef = useRef(null);
-
   const updateNextAudioSrc = (newUrl) => {
     if (newUrl) {
       setNextAudioSrc(newUrl);
@@ -33,6 +33,11 @@ const Camera = () => {
         setHasPermission(true);
         localStorage.setItem('language', language);
         VoiceGuide(language, setAudioSrc);
+        socket.on('audio-detection', (data) => {
+          const audioUrl = `data:audio/mp3;base64,${data.audio}`;
+          updateNextAudioSrc(audioUrl)
+        });
+    
       } catch (err) {
         console.error('Error accessing camera: ', err);
         setHasPermission(false);
@@ -40,12 +45,14 @@ const Camera = () => {
     };
 
     requestCameraPermission();
-  }, [language]);
+  }, []);
+
 
   useEffect(() => {
     if (videoStream && videoRef.current && canvasRef.current) {
       videoRef.current.srcObject = videoStream;
-      startStreaming(updateNextAudioSrc, canvasRef, videoRef);
+      videoRef.current.play();
+      startStreaming(canvasRef, videoRef);
     }
   }, [videoStream]);
 
@@ -66,9 +73,10 @@ const Camera = () => {
   };
 
   const handleLanguageChange = (event) => {
-    setLanguage(event.target.value);
-    localStorage.setItem('language', event.target.value);
-    VoiceGuide(event.target.value, setAudioSrc);
+    const newLanguage = event.target.value;
+    setLanguage(newLanguage);
+    localStorage.setItem('language', newLanguage);
+    VoiceGuide(newLanguage, setAudioSrc);
   };
 
   return (
@@ -88,9 +96,7 @@ const Camera = () => {
             onChange={handleLanguageChange}
             label="Idioma"
             sx={{ color: 'white' }}
-            inputProps={{
-              sx: { color: 'white' }
-            }}
+            inputProps={{ sx: { color: 'white' } }}
           >
             <MenuItem value="es">Español</MenuItem>
             <MenuItem value="en">Inglés</MenuItem>
@@ -98,12 +104,7 @@ const Camera = () => {
           </Select>
         </FormControl>
         <div className="canvas-wrap" style={{ display: 'none' }}>
-          <canvas
-            className="canvas"
-            width="220"
-            height="140"
-            ref={canvasRef}
-          />
+          <canvas className="canvas" width="220" height="140" ref={canvasRef} />
         </div>
       </Box>
     </div>
