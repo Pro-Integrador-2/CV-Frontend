@@ -9,7 +9,7 @@ const Camera = () => {
   const [videoStream, setVideoStream] = useState(null);
   const [audioSrc, setAudioSrc] = useState(null);
   const [nextAudioSrc, setNextAudioSrc] = useState(null);
-  const [language, setLanguage] = useState('es');
+  const [language, setLanguage] = useState(localStorage.getItem('language'));
   const [playNextAudio, setPlayNextAudio] = useState(false);
   const canvasRef = useRef(null);
   const videoRef = useRef(null);
@@ -34,8 +34,6 @@ const Camera = () => {
         localStorage.setItem('language', language);
         VoiceGuide(language, setAudioSrc);
         socket.on('audio-detection', (data) => {
-
-          console.info(socket.id, data.session_id, socket.id === data.session_id)
           if (socket.id === data.session_id) {
             const audioUrl = `data:audio/mp3;base64,${data.audio}`;
             updateNextAudioSrc(audioUrl)
@@ -104,6 +102,8 @@ const Camera = () => {
             <MenuItem value="es">Español</MenuItem>
             <MenuItem value="en">Inglés</MenuItem>
             <MenuItem value="fr">Francés</MenuItem>
+            <MenuItem value="pt">Portugués</MenuItem>
+            <MenuItem value="it">Italiano</MenuItem>
           </Select>
         </FormControl>
         <div className="canvas-wrap" style={{ display: 'none' }}>
