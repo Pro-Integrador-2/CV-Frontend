@@ -39,6 +39,13 @@ const Camera = () => {
             updateNextAudioSrc(audioUrl)
           }
         });
+        socket.on('disconnect', (reason) => {
+          console.warn('Disconnected from WebSocket:', reason);
+          const audioUrl = `/error-${language}.mp3`;
+          setAudioSrc(audioUrl);
+          setNextAudioSrc(null);
+        });
+
       } catch (err) {
         console.error('Error accessing camera: ', err);
         setHasPermission(false);
