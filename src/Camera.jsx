@@ -3,13 +3,14 @@ import startStreaming from './streaming';
 import socket from './socket';
 import { FormControl, InputLabel, Select, MenuItem, Box } from '@mui/material';
 import { VoiceGuide } from './initGuide';
+import translations from './translations';
 
 const Camera = () => {
   const [hasPermission, setHasPermission] = useState(false);
   const [videoStream, setVideoStream] = useState(null);
   const [audioSrc, setAudioSrc] = useState(null);
   const [nextAudioSrc, setNextAudioSrc] = useState(null);
-  const [language, setLanguage] = useState(localStorage.getItem('language'));
+  const [language, setLanguage] = useState(localStorage.getItem('language') || 'es');
   const [playNextAudio, setPlayNextAudio] = useState(false);
   const canvasRef = useRef(null);
   const videoRef = useRef(null);
@@ -53,8 +54,7 @@ const Camera = () => {
     };
 
     requestCameraPermission();
-  }, []);
-
+  }, [language]);
 
   useEffect(() => {
     if (videoStream && videoRef.current && canvasRef.current) {
@@ -87,15 +87,25 @@ const Camera = () => {
     VoiceGuide(newLanguage, setAudioSrc);
   };
 
+  const { selectLanguage, noPermission, videoDescription, audioGuide } = translations[language];
+
   return (
     <div style={{ marginTop: '8px', height: '80vh', display: 'flex', flexDirection: 'column' }}>
       <FormControl variant="outlined" fullWidth>
-        <InputLabel id="language-select-label" sx={{ color: 'white', '&.Mui-focused': { color: 'white' } }}>Idioma</InputLabel>
+        <InputLabel 
+          id="language-select-label" 
+          sx={{ color: 'white', '&.Mui-focused': { color: 'white' } }}
+          htmlFor="language-select"
+        >
+          {selectLanguage}
+        </InputLabel>
         <Select
           labelId="language-select-label"
+          id="language-select"
           value={language}
           onChange={handleLanguageChange}
-          label="Idioma"
+          label={selectLanguage}
+          aria-label={selectLanguage}
           sx={{
             color: 'white',
             '& .MuiOutlinedInput-notchedOutline': {
@@ -142,15 +152,29 @@ const Camera = () => {
             ref={videoRef}
             autoPlay
             style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+            aria-label={videoDescription}
           />
         </div>
       ) : (
-        <p>No permission to access the camera.</p>
+        <p>{noPermission}</p>
       )}
-      {audioSrc && <audio src={audioSrc} autoPlay onEnded={handleAudioEnding} />}
+      {audioSrc && (
+        <audio
+          src={audioSrc}
+          autoPlay
+          onEnded={handleAudioEnding}
+          aria-label={audioGuide}
+        />
+      )}
       <Box sx={{ display: 'flex', justifyContent: 'center', mt: 8 }}>
         <div className="canvas-wrap" style={{ display: 'none' }}>
-          <canvas className="canvas" width="220" height="140" ref={canvasRef} />
+          <canvas
+            className="canvas"
+            width="220"
+            height="140"
+            ref={canvasRef}
+            aria-hidden="true"
+          />
         </div>
       </Box>
     </div>
