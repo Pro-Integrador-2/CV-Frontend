@@ -14,10 +14,11 @@ const Camera = () => {
   const [playNextAudio, setPlayNextAudio] = useState(false);
   const canvasRef = useRef(null);
   const videoRef = useRef(null);
+  const audioRef = useRef(null);
   const updateNextAudioSrc = (newUrl) => {
     if (newUrl) {
       setNextAudioSrc(newUrl);
-      if (playNextAudio) {
+      if (playNextAudio || !isPlaying()) {
         setPlayNextAudio(false);
         setAudioSrc(newUrl);
       }
@@ -35,7 +36,7 @@ const Camera = () => {
         localStorage.setItem('language', language);
         VoiceGuide(language, setAudioSrc);
         socket.on('audio-detection', (data) => {
-          console.error(socket.id, data.session_id)
+          console.error(socket.id, data.session_id, socket.id === data.session_id)
           if (socket.id === data.session_id) {
             const audioUrl = `data:audio/mp3;base64,${data.audio}`;
             updateNextAudioSrc(audioUrl)
@@ -55,7 +56,15 @@ const Camera = () => {
     };
 
     requestCameraPermission();
-  }, [language]);
+  }, []);
+
+  const isPlaying = () => {
+    return audioRef.current
+      && audioRef.current.currentTime > 0
+      && !audioRef.current.paused
+      && !audioRef.current.ended
+      && audioRef.current.readyState > 2;
+  }
 
   useEffect(() => {
     if (videoStream && videoRef.current && canvasRef.current) {
@@ -93,8 +102,8 @@ const Camera = () => {
   return (
     <div style={{ marginTop: '8px', height: '80vh', display: 'flex', flexDirection: 'column' }}>
       <FormControl variant="outlined" fullWidth>
-        <InputLabel 
-          id="language-select-label" 
+        <InputLabel
+          id="language-select-label"
           sx={{ color: 'white', '&.Mui-focused': { color: 'white' } }}
           htmlFor="language-select"
         >
@@ -164,6 +173,7 @@ const Camera = () => {
           src={audioSrc}
           autoPlay
           onEnded={handleAudioEnding}
+          ref={audioRef}
           aria-label={audioGuide}
         />
       )}
