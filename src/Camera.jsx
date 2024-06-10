@@ -28,7 +28,7 @@ const Camera = () => {
   useEffect(() => {
     const requestCameraPermission = async () => {
       try {
-        const stream = await navigator.mediaDevices.getUserMedia({ video: { width: 520, height: 340 } });
+        const stream = await navigator.mediaDevices.getUserMedia({ video: true });
         setVideoStream(stream);
         setHasPermission(true);
         localStorage.setItem('language', language);
@@ -88,31 +88,67 @@ const Camera = () => {
   };
 
   return (
-    <div>
+    <div style={{ marginTop: '8px', height: '80vh', display: 'flex', flexDirection: 'column' }}>
+      <FormControl variant="outlined" fullWidth>
+        <InputLabel id="language-select-label" sx={{ color: 'white', '&.Mui-focused': { color: 'white' } }}>Idioma</InputLabel>
+        <Select
+          labelId="language-select-label"
+          value={language}
+          onChange={handleLanguageChange}
+          label="Idioma"
+          sx={{
+            color: 'white',
+            '& .MuiOutlinedInput-notchedOutline': {
+              borderColor: 'white',
+            },
+            '&:hover .MuiOutlinedInput-notchedOutline': {
+              borderColor: 'white',
+            },
+            '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
+              borderColor: 'white',
+            },
+            '& .MuiOutlinedInput-root': {
+              '& fieldset': {
+                borderColor: 'white',
+              },
+              '&:hover fieldset': {
+                borderColor: 'white',
+              },
+              '&.Mui-focused fieldset': {
+                borderColor: 'white',
+              },
+            },
+            '& .MuiSelect-icon': {
+              color: 'white',
+            },
+          }}
+          inputProps={{
+            sx: {
+              color: 'white'
+            }
+          }}
+        >
+          <MenuItem value="es">Español</MenuItem>
+          <MenuItem value="en">Inglés</MenuItem>
+          <MenuItem value="fr">Francés</MenuItem>
+          <MenuItem value="pt">Portugués</MenuItem>
+          <MenuItem value="it">Italiano</MenuItem>
+        </Select>
+      </FormControl>
       {hasPermission ? (
-        <video className="video" ref={videoRef} autoPlay />
+        <div style={{ flexGrow: 1, display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
+          <video
+            className="video"
+            ref={videoRef}
+            autoPlay
+            style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+          />
+        </div>
       ) : (
         <p>No permission to access the camera.</p>
       )}
       {audioSrc && <audio src={audioSrc} autoPlay onEnded={handleAudioEnding} />}
-      <Box sx={{ display: 'flex', justifyContent: 'center', mt: 2 }}>
-        <FormControl variant="outlined">
-          <InputLabel id="language-select-label" sx={{ color: 'white' }}>Idioma</InputLabel>
-          <Select
-            labelId="language-select-label"
-            value={language}
-            onChange={handleLanguageChange}
-            label="Idioma"
-            sx={{ color: 'white' }}
-            inputProps={{ sx: { color: 'white' } }}
-          >
-            <MenuItem value="es">Español</MenuItem>
-            <MenuItem value="en">Inglés</MenuItem>
-            <MenuItem value="fr">Francés</MenuItem>
-            <MenuItem value="pt">Portugués</MenuItem>
-            <MenuItem value="it">Italiano</MenuItem>
-          </Select>
-        </FormControl>
+      <Box sx={{ display: 'flex', justifyContent: 'center', mt: 8 }}>
         <div className="canvas-wrap" style={{ display: 'none' }}>
           <canvas className="canvas" width="220" height="140" ref={canvasRef} />
         </div>
