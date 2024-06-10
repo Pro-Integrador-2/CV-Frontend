@@ -4,23 +4,16 @@ const startStreaming = (canvasRef, videoRef) => {
   const video = videoRef.current;
   const canvas = canvasRef.current;
   const context = canvas.getContext('2d');
-  let imageBuffer = [];
-  const imagesToSend = 4;
 
   const sendFrame = () => {
     context.drawImage(video, 0, 0, 220, 140);
     const imageData = canvas.toDataURL('image/jpeg');
-    imageBuffer.push(imageData);
-
-    if (imageBuffer.length >= imagesToSend) {
-      const language = localStorage.getItem("language");
-      socket.emit('upload_images', { images: imageBuffer, language_code: language });
-      imageBuffer = []; 
-    }
+    const language = localStorage.getItem("language")
+    socket.emit('upload_image', { image: imageData, language_code: language });
   };
 
   const startSendingFrames = () => {
-    setInterval(sendFrame, 1000); 
+    setInterval(sendFrame, 3800);
   };
 
   video.addEventListener('canplay', () => {
