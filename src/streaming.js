@@ -1,38 +1,19 @@
-const startStreaming = (stream, updateNextAudioSrc) => {
-  const video = document.createElement('video');
-  video.srcObject = stream;
-  video.play();
+import socket from './socket';
 
-  const canvas = document.createElement('canvas');
+const startStreaming = (canvasRef, videoRef) => {
+  const video = videoRef.current;
+  const canvas = canvasRef.current;
   const context = canvas.getContext('2d');
 
-  const sendFrame = async () => {
-    context.drawImage(video, 0, 0, canvas.width, canvas.height);
+  const sendFrame = () => {
+    context.drawImage(video, 0, 0, 220, 140);
     const imageData = canvas.toDataURL('image/jpeg');
     const language = localStorage.getItem("language")
-    try {
-      const response = await fetch('http://127.0.0.1:5000/upload-image', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ image: imageData, language_code: language}),
-      });
-
-      if (!response.ok) {
-        throw new Error('Network response was not ok');
-      }
-
-      const audioBlob = await response.blob();
-      const audioUrl = URL.createObjectURL(audioBlob);
-      updateNextAudioSrc(audioUrl);
-    } catch (error) {
-      console.error('Error sending frame: ', error);
-    }
+    socket.emit('upload_image', { image: imageData, language_code: language });
   };
 
   const startSendingFrames = () => {
-    setInterval(sendFrame, 5000);
+    setInterval(sendFrame, 3800);
   };
 
   video.addEventListener('canplay', () => {
