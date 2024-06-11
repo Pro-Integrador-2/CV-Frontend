@@ -27,10 +27,20 @@ const Camera = () => {
     }
   };
 
+  const isMobileDevice = () => {
+    return /Mobi|Android/i.test(navigator.userAgent);
+  };
+
   useEffect(() => {
     const requestCameraPermission = async () => {
       try {
-        const stream = await navigator.mediaDevices.getUserMedia({ video: true });
+        const constraints = {
+          video: {
+            facingMode: isMobileDevice() ? { exact: 'environment' } : 'user',
+          },
+        };
+
+        const stream = await navigator.mediaDevices.getUserMedia(constraints);
         setVideoStream(stream);
         setHasPermission(true);
         localStorage.setItem('language', language);
@@ -56,7 +66,7 @@ const Camera = () => {
     };
 
     requestCameraPermission();
-  }, []);
+  }, [language]);
 
   const isPlaying = () => {
     return audioRef.current
