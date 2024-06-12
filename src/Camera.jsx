@@ -25,19 +25,11 @@ const Camera = () => {
     }
   };
 
-  const isMobile = () => {
-    const userAgent = navigator.userAgent || navigator.vendor || window.opera;
-    return /android|iPad|iPhone|iPod/.test(userAgent) && !window.MSStream;
-  };
 
   useEffect(() => {
     const requestCameraPermission = async () => {
       try {
-        const videoConstraints = isMobile()
-        ? { facingMode: { exact: "environment" } }
-        : true;
-
-      const stream = await navigator.mediaDevices.getUserMedia({ video: videoConstraints });
+        const stream = await navigator.mediaDevices.getUserMedia({ video: true });
         setVideoStream(stream);
         setHasPermission(true);
         localStorage.setItem('language', language);
