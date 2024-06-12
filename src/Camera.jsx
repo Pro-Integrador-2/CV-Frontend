@@ -15,17 +15,16 @@ const Camera = () => {
   const canvasRef = useRef(null);
   const videoRef = useRef(null);
   const audioRef = useRef(null);
-  const updateNextAudioSrc = (newUrl) => {
-    if (newUrl) {
+  const updateNextAudioSrc = (newUrl, audioLanguage) => {
+    if (newUrl && audioLanguage && language) {
       setNextAudioSrc(newUrl);
       if (playNextAudio || !isPlaying()) {
         setPlayNextAudio(false);
         setAudioSrc(newUrl);
       }
-    } else {
-      console.error('Failed to update next audio source.');
     }
   };
+
 
   useEffect(() => {
     const requestCameraPermission = async () => {
@@ -36,10 +35,9 @@ const Camera = () => {
         localStorage.setItem('language', language);
         VoiceGuide(language, setAudioSrc);
         socket.on('audio-detection', (data) => {
-          console.error(socket.id, data.session_id, socket.id === data.session_id)
           if (socket.id === data.session_id) {
             const audioUrl = `data:audio/mp3;base64,${data.audio}`;
-            updateNextAudioSrc(audioUrl)
+            updateNextAudioSrc(audioUrl, data.language)
           }
         });
         socket.on('disconnect', (reason) => {
@@ -94,6 +92,7 @@ const Camera = () => {
     const newLanguage = event.target.value;
     setLanguage(newLanguage);
     localStorage.setItem('language', newLanguage);
+    setNextAudioSrc(null);
     VoiceGuide(newLanguage, setAudioSrc);
   };
 
