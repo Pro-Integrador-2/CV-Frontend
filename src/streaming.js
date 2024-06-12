@@ -13,7 +13,7 @@ const startStreaming = (canvasRef, videoRef) => {
   };
 
   const startSendingFrames = () => {
-    setInterval(sendFrame, 3800);
+    setInterval(sendFrame, 3500);
   };
 
   video.addEventListener('canplay', () => {
