@@ -15,8 +15,9 @@ const Camera = () => {
   const canvasRef = useRef(null);
   const videoRef = useRef(null);
   const audioRef = useRef(null);
-  const updateNextAudioSrc = (newUrl, audioLanguage) => {
-    if (newUrl && audioLanguage && language) {
+  let updateNextAudioSrc = (newUrl, audioLanguage) => {
+    const currentLanguage = localStorage.getItem("language")
+    if (newUrl && audioLanguage === currentLanguage) {
       setNextAudioSrc(newUrl);
       if (playNextAudio || !isPlaying()) {
         setPlayNextAudio(false);
